@@ -1,0 +1,10 @@
+project_id = "YOUR-GLOBALLY-UNIQUE-PROJECT-ID"
+admin_cidr = "203.0.113.10/32" # replace with Cloud Shell/operator public IP
+create_project = false # use an existing billing-enabled sandbox, or set true
+# billing_account = "XXXXXX-XXXXXX-XXXXXX" # required when creating a project
+# folder_id = "123456789" # only if you have an organization/folder
+# iam_bindings = {
+#   "roles/container.viewer" = ["group:developers@example.com"]
+#   "roles/container.developer" = ["group:ops@example.com"]
+#   "roles/monitoring.viewer" = ["group:sre@example.com"]
+# }

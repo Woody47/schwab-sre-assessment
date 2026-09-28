@@ -1,0 +1,258 @@
+{
+  "uid": "schwab-sre",
+  "title": "SRE assessment \u2014 applications and clusters",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "tags": [
+    "sre",
+    "assessment"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Application 5xx rate \u2014 both clusters",
+      "type": "timeseries",
+      "datasource": {
+        "type": "grafana-bigquery-datasource",
+        "uid": "bigquery"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "bigquery"
+          },
+          "rawSql": "SELECT TIMESTAMP_TRUNC(timestamp, MINUTE) AS time, jsonPayload.app AS metric, 100.0 * SAFE_DIVIDE(COUNTIF(jsonPayload.status >= 500), COUNT(*)) AS value FROM `PROJECT_ID.sre_logs.stdout` WHERE $__timeFilter(timestamp) AND jsonPayload.app IN ('app-a','app-b') GROUP BY 1,2 ORDER BY 1",
+          "format": 0,
+          "location": "US",
+          "project": "PROJECT_ID",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Request latency \u2014 both clusters",
+      "type": "timeseries",
+      "datasource": {
+        "type": "grafana-bigquery-datasource",
+        "uid": "bigquery"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "bigquery"
+          },
+          "rawSql": "SELECT TIMESTAMP_TRUNC(timestamp, MINUTE) AS time, APPROX_QUANTILES(jsonPayload.latency_ms,100)[OFFSET(50)] AS p50, APPROX_QUANTILES(jsonPayload.latency_ms,100)[OFFSET(95)] AS p95, APPROX_QUANTILES(jsonPayload.latency_ms,100)[OFFSET(99)] AS p99 FROM `PROJECT_ID.sre_logs.stdout` WHERE $__timeFilter(timestamp) AND jsonPayload.app IN ('app-a','app-b') GROUP BY 1 ORDER BY 1",
+          "format": 0,
+          "location": "US",
+          "project": "PROJECT_ID",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Pod restarts \u2014 this cluster",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total{namespace=\"apps\"}[15m]))",
+          "legendFormat": "{{pod}}{{app}}",
+          "range": true
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "CPU cores \u2014 this cluster",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"apps\",container=\"web\"}[5m]))",
+          "legendFormat": "{{pod}}{{app}}",
+          "range": true
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cores"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Memory working set \u2014 this cluster",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"apps\",container=\"web\"})",
+          "legendFormat": "{{pod}}{{app}}",
+          "range": true
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Application request rate \u2014 this cluster",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (app) (rate(http_requests_total[5m]))",
+          "legendFormat": "{{pod}}{{app}}",
+          "range": true
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    }
+  ]
+}

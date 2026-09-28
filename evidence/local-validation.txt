@@ -1,0 +1,10 @@
+test_actual_dependency_failure_and_recovery (test_app.Integration.test_actual_dependency_failure_and_recovery) ... ok
+test_readiness_wrong_path (test_app.Integration.test_readiness_wrong_path) ... ok
+test_two_services_and_metrics (test_app.Integration.test_two_services_and_metrics) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.370s
+
+OK
+Summary: 15 resources found in 2 files - Valid: 15, Invalid: 0, Errors: 0, Skipped: 0
+Summary: 72 resources found in 1 file - Valid: 63, Invalid: 0, Errors: 0, Skipped: 9
